@@ -1,0 +1,12 @@
+=====================
+   * purnima Ai-Team *
+=====================
+plese enter the details:
+__________________________
+user_ID:
+user_name:
+user_email:
+user_age:
+user_mobile:
+user_collage:
+___________________________
