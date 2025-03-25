@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css">
+    <style>
+        body {
+            background: linear-gradient(45deg, #16d3f0, #de3b13);
+            color: white;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .container {
+            padding: 20px;
+            max-width: 400px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+        }
+        .weather-info {
+            display: none;
+            margin-top: 20px;
+        }
+        #suggestion {
+            font-weight: bold;
+            margin-top: 15px;
+            color: yellow;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>🌤 Weather App</h2>
+        <input type="text" id="city" class="form-control mt-3" placeholder="Enter city name">
+        <button class="btn btn-light mt-3" onclick="fetchWeather()">Get Weather</button>
+        <p id="error-message" class="text-danger mt-2"></p>
+
+        <div class="weather-info">
+            <h3 id="city-name"></h3>
+            <p id="temperature"></p>
+            <p id="humidity"></p>
+            <p id="condition"></p>
+            <p id="suggestion"></p>  <!-- Weather Suggestion Box -->
+        </div>
+    </div>
+
+    <script>
+        async function fetchWeather() {
+            const city = document.getElementById("city").value;
+             const apiKey = "d7925bd5514808e690c967ec319bfe86";  // Replace with your API key
+             const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+
+            document.getElementById("error-message").innerText = "";
+            document.querySelector(".weather-info").style.display = "none";
+
+            if (city === "") {
+                document.getElementById("error-message").innerText = "Please enter a city name!";
+                return;
+            }
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.cod === "404") {
+                    document.getElementById("error-message").innerText = "City not found!";
+                    return;
+                }
+
+                // Extract weather data
+                const temp = data.main.temp;
+                const weatherCondition = data.weather[0].description;
+                const icon = data.weather[0].icon;
+                const iconUrl = `https://openweathermap.org/img/wn/${icon}.png`;
+
+                // Update UI
+                document.getElementById("city-name").innerText = `📍 ${data.name}, ${data.sys.country}`;
+                document.getElementById("temperature").innerText = `🌡 Temperature: ${temp}°C`;
+                document.getElementById("humidity").innerText = `💧 Humidity: ${data.main.humidity}%`;
+                document.getElementById("condition").innerHTML = `🌤 Condition: ${weatherCondition} <img src="${iconUrl}" alt="Weather Icon">`;
+                document.getElementById("suggestion").innerText = getWeatherSuggestion(temp, weatherCondition);
+
+                document.querySelector(".weather-info").style.display = "block";
+                document.getElementById("city").value = ""; // Clear input field
+
+            } catch (error) {
+                document.getElementById("error-message").innerText = "Error fetching weather data!";
+            }
+        }
+
+        function getWeatherSuggestion(temp, weather) {
+            if (weather.includes("rain")) {
+                return "☔ It's raining! Don't forget your umbrella.";
+            } else if (temp > 30) {
+                return "🔥 It's too hot! Stay hydrated and wear light clothes.";
+            } else if (temp < 15) {
+                return "🧥 It's cold! Wear a warm jacket.";
+            } else if (weather.includes("clear")) {
+                return "🌞 It's a sunny day! Enjoy the sunshine.";
+            } else if (weather.includes("wind")) {
+                return "🌬️ It's windy outside! Be careful.";
+            } else {
+                return "🌤️ Have a great day!";
+            }
+        }
+    </script>
+
+</body>
+</html>
